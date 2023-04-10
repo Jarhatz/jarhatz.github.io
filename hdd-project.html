@@ -1,0 +1,172 @@
+<!DOCTYPE HTML>
+<!--
+	Solid State by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Hard Drive Failure Prediction Project</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Page Wrapper -->
+			<div id="page-wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="index.html">Rajath Rao</a></h1>
+						<nav>
+							<a href="#menu">Menu</a>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<nav id="menu">
+						<div class="inner">
+							<h2>Menu</h2>
+							<ul class="links">
+								<li><a href="index.html">Home</a></li>
+								<li><a href="projects.html">Projects</a></li>
+								<li><a href="about-me.html">About Me</a></li>
+							</ul>
+							<a href="#" class="close">Close</a>
+						</div>
+					</nav>
+
+				<!-- Wrapper -->
+					<section id="wrapper">
+						<header>
+							<div class="inner">
+								<h2>Hard Drive Failure Prediction Project</h2>
+								<p>A review of the learning model and the results.</p>
+							</div>
+						</header>
+
+						<!-- Content -->
+							<div class="wrapper">
+								<div class="inner">
+
+									<section>
+										<h3 class="major">Introduction</h3>
+										<p>With hundreds of thousands of servers running at Intel’s data centers around the world, many are susceptible to crash and fail due to faulty hard drives and lack of maintenance.
+										During my time at Intel, I proposed and developed a packaged tool that predicts imminent hard drive failures up to months before they actually occur.
+										An ample amount of data was required to be collected in order to train a versatile model applicable to many hard drives, so the project was split into
+										three major tasks.</p>
+										<h4>Phases:</h4>
+										<blockquote>
+											1. Data Collection<br>
+											2. Data Preparation<br>
+											3. Model Training
+										</blockquote>
+										<h3 class="major">Data Collection</h3>
+										<p>Most hard drives have a vendor provided drive-level metric for reading attributes. One prominent metric is known as S.M.A.R.T <i>(Self-Monitoring, Analysis-and-Reporting-Technology).</i> S.M.A.R.T. provides internal attributes about the hard drive which can serve as features for a potential machine learning model.
+										For instance, the following table depicts some such features/attributes about a hypothetical hard drive.</p>
+										<h4>S.M.A.R.T. Attributes</h4>
+										<div class="table-wrapper">
+											<table class="alt">
+												<thead>
+													<tr>
+														<th>ID</th>
+														<th>Attribute Name</th>
+														<th>Ideal</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td>0x01</td>
+														<td>Read Error Rate</td>
+														<td>116</td>
+													</tr>
+													<tr>
+														<td>0x03</td>
+														<td>Spin-Up Time</td>
+														<td>95</td>
+													</tr>
+													<tr>
+														<td>0x04</td>
+														<td>Start/Stop Count</td>
+														<td>26</td>
+													</tr>
+													<tr>
+														<td>0x09</td>
+														<td>Power on Hours</td>
+														<td>34,484.65</td>
+													</tr>
+													<tr>
+														<td>0x0C</td>
+														<td>Power Cycle Count</td>
+														<td>124</td>
+													</tr>
+													<tr>
+														<td>0xBB</td>
+														<td>Uncorrectable Errors</td>
+														<td>199</td>
+													</tr>
+													<tr>
+														<td>0xC1</td>
+														<td>Load/Unload Count</td>
+														<td>162</td>
+													</tr>
+													<tr>
+														<td>0xC2</td>
+														<td>Temperature Celcius</td>
+														<td>36 °C</td>
+													</tr>
+												</tbody>
+												<tfoot>
+													<tr>
+														<td colspan="2"></td>
+														<td><i>*This table's data is fabricated due to Intel's intellectual property protection terms and conditions.</i></td>
+													</tr>
+												</tfoot>
+											</table>
+										</div>
+										<p>As seen in the table above, the S.M.A.R.T. attributes range from 0-255 potential factors, but these are just <i>some</i> of the many attributes.</p>
+										<p>S.M.A.R.T. attributes for thousands of hard drives from different host servers were accumulated into a <a href="https://www.mongodb.com/" style="color: cornflowerblue;" target="_blank;">MongoDB</a> collection database that I setup with a persistent volume. The data collection phase resulted in about 4 months of S.M.A.R.T. data for thousands of drives.</p>
+										<h3 class="major">Data Preparation</h3>
+										<p>The collected data could not be used immediately without proper cleaning techniques such as statisical normalization and ommitting superfluous attributes/features. This was done through understanding the importance of each of the attributes and avoiding columns that had more than 75% missing data.</p>
+										<p>For particular S.M.A.R.T. attributes, healthier hard drives all have lower counts in common. While for other attributes, the higher the number, the better. This metric for internal components and readings of the hard drive go on a case by case basis which is what the training data needed to incorporate. Understanding the physical characteristics of the hard drive helped allow me to feature engineer proper training data for the model. For instance, unallocated sectors and reported uncorrectable errors mean that the hard drive may be faulty which can later develop into a severe hardware error.</p>
+										<h3 class="major">Model Training</h3>
+										<p>A Stochastic Gradient Descent Neural Network model was chosen due to its run-time efficiency at high dimensional feature counts. I validated features for the classifier using the following techniques:</p>
+										<ul>
+											<li>Calculating Information Gain through Confusion Matrices</li>
+											<li>Determining Correlation Coefficients for each Disk Attribute</li>
+											<li>Cross-Validation with an Ensemble of Learners</li>
+										</ul>
+										<p>Information Gain is essentially a quantification on how important a feature is to the model in determing the correct answer. Using the feature importances, specific weightages can be applied to increase the overall accuracy (AUC/ROS) of the model. A confusion matrix is essentially a error table that indicates the the number of successes and failures with false positives, true positives, false negatives, and true negatives. This can be useful in determining when and where the model is consistently lapsing in the test cases. Finally, using an ensemble of learners helps validate the weightages and selection choices of the features for the primary model. If the accuracy scores and the mean squared errors (MSEs) are consistent within the ensemble, that is a good sign.</p>
+										<p><span class="image right"><img src="images/hdd-failure-models.jpg" alt="" /></span>As mentioned before, the purpose of this model was not only just to predict if an imminent hard drive failure was going to happen, but <i>when</i> it was going to happen with a high confidence. This lead me to implement a pipeline design with an ensemble of two models, one being a classifier and the other being a regression. The Imminent Failure Classifier first predicts whether or not the hard drive is likely to fail depending on its health through S.M.A.R.T. and its present-day features. If it is not likely to fail in the next 4 months, the prediction yields that it is a healthy hard drive. However if it was likely to fail within the next 4 months, the sample hard drive is processed to the next Stochastic Gradient Descent Regressor which estimates the number of days until the failure occurs. The model uses the S.M.A.R.T. data for the hard drive on that specific day and leverages it with the hundreds of thousands of training samples of hard drives. It yields a prediction with an approximate number of "days till the failure" and a confidence interval of how likely it is to actually happen.</p>
+										<h3 class="major">Results</h3>
+										<p><span class="image left"><img src="images/hdd-failure-graph.jpg" alt="" /></span>The graph on the left is commonly known as the "Bathtub Curve." This graph is used to describe regressions of the probability of a certain item's life expectancy. Just like how a biotic element is more likely to die at its early stages of life, the graph depicts a higher failure percentage for newly manufactured hard drives. This is due to manufacturing defects, lack of run-time, and many other factors. The graph is concave up while declining until the midpoint of the hard drive's life. At this point, the likelihood of failure is at its lowest which indicates a healthy hard drive. Moving forward, the curve starts to increase with a larger derivative which is primarily due to the hard drive reaching its end-of-life (EOL). When training and testing the models, I discovered this same phenomenon with the samples of drives that I was working with. Our results indicated an average failure rate (AFR) of <b>3-4%</b> for a typical hard drive in a datacenter.</p>
+										<blockquote style="background-color: green;"><b>FINAL MODEL WITH AN ACCURACY OF 97% ON TEST HOSTS</b></blockquote>
+									</section>
+								</div>
+							</div>
+				<!-- Footer -->
+				<section id="footer">
+					<div class="inner">
+						<ul class="contact">
+							<li class="icon solid fa-envelope">rajathrao1001[AT]gmail[DOT]com</li>
+							<li class="icon brands fa-linkedin-in"><a href="https://www.linkedin.com/in/rajath-rao-a84106161">LinkedIn</a></li>
+							<li class="icon brands fa-instagram"><a href="https://www.instagram.com/rajathdaboss">Instagram</a></li>
+						</ul>
+						<ul class="copyright">
+							<li>&copy; Rajath Rao. All rights reserved.</li><li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+						</ul>
+					</div>
+				</section>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
